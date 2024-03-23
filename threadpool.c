@@ -1,7 +1,7 @@
 /**
  * Implementation of thread pool.
  */
-
+// Adding for initial commit
 #include <pthread.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -13,14 +13,13 @@
 
 #define TRUE 1
 
-// this represents work that has to be 
+// this represents work that has to be
 // completed by a thread in the pool
-typedef struct 
+typedef struct
 {
     void (*function)(void *p);
     void *data;
-}
-task;
+} task;
 
 // the work queue
 task worktodo;
@@ -29,14 +28,14 @@ task worktodo;
 pthread_t bee;
 
 // insert a task into the queue
-// returns 0 if successful or 1 otherwise, 
-int enqueue(task t) 
+// returns 0 if successful or 1 otherwise,
+int enqueue(task t)
 {
     return 0;
 }
 
 // remove a task from the queue
-task dequeue() 
+task dequeue()
 {
     return worktodo;
 }
@@ -72,11 +71,11 @@ int pool_submit(void (*somefunction)(void *p), void *p)
 // initialize the thread pool
 void pool_init(void)
 {
-    pthread_create(&bee,NULL,worker,NULL);
+    pthread_create(&bee, NULL, worker, NULL);
 }
 
 // shutdown the thread pool
 void pool_shutdown(void)
 {
-    pthread_join(bee,NULL);
+    pthread_join(bee, NULL);
 }
