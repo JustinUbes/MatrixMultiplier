@@ -1,7 +1,7 @@
 /**
  * Implementation of thread pool.
  */
-// Adding for initial commit
+// Adding for justin branch
 #include <pthread.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -24,6 +24,11 @@ typedef struct
 // the work queue
 task worktodo;
 
+task workqueue[QUEUE_SIZE];
+int front = -1;
+int back = -1;
+int size = 0;
+
 // the worker bee
 pthread_t bee;
 
@@ -31,12 +36,40 @@ pthread_t bee;
 // returns 0 if successful or 1 otherwise,
 int enqueue(task t)
 {
-    return 0;
+    if (size < QUEUE_SIZE)
+    {
+        if (back == QUEUE_SIZE - 1)
+        {
+            workqueue[0] = t;
+            back = 0;
+            ++size;
+        }
+        else
+        {
+            workqueue[back + 1] = t;
+            ++size;
+            ++back;
+        }
+    }
+    else
+    {
+        printf("Queue is full.\n");
+    }
 }
 
 // remove a task from the queue
 task dequeue()
 {
+    if (size == 0)
+    {
+        printf("Queue is empty.\n");
+    }
+    else
+    {
+        worktodo = workqueue[front];
+        --size;
+        front = (front + 1) % QUEUE_SIZE;
+    }
     return worktodo;
 }
 
