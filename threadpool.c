@@ -102,9 +102,19 @@ int pool_submit(void (*somefunction)(void *p), void *p)
 }
 
 // initialize the thread pool
-void pool_init(void)
+int pool_init(void)
 {
-    pthread_create(&bee, NULL, worker, NULL);
+    int create_val;
+    create_val = pthread_create(&bee, NULL, worker, NULL); // create_val should have the value "0" if the thread is created successfully
+    if (create_val != 0)
+    {
+        printf("\nERROR: Failed to create thread\n");
+        return 1;
+    }
+    else
+    {
+        return create_val;
+    }
 }
 
 // shutdown the thread pool

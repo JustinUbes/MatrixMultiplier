@@ -31,8 +31,10 @@ int main(void)
 
     // submit the work to the queue
     for(i=0;i<Total_no_of_partial_product;i++)
+    {
     	pool_submit(&compute_partial_product,&work[i]);
-
+    
+    }
     // may be helpful 
     //sleep(3);
 
