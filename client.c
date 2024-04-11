@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include "threadpool.h"
 #define Total_no_of_partial_product 5 //for make to work I have defined this, you should comupte this value from the dimension of the input matrices
+
 struct data
 {
     //information needed for one thread to process 
@@ -26,16 +27,11 @@ void compute_partial_product(void *param)
     struct data *temp;
     temp = (struct data*)param;
     //define this
-    for (int i = 0; i < temp->row1; i++)
+    
+    temp->product[i][j] = 0;
+    for (int k = 0; k < temp->row2; k++)
     {
-        for (int j = 0; j < temp->col2; j++)
-        {
-            temp->product[i][j] = 0;
-            for (int k = 0; k < temp->row2; k++)
-            {
-                temp->product[i][j] += temp->matrix1[i][k] * temp->matrix2[k][j];
-            }
-        }
+        temp->product[i][j] += temp->matrix1[i][k] * temp->matrix2[k][j];
     }
 
 }
