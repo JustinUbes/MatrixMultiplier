@@ -30,9 +30,10 @@ void compute_partial_product(void *param)
     {
         for (int j = 0; j < temp->col2; j++)
         {
+            temp->product[i][j] = 0;
             for (int k = 0; k < temp->row2; k++)
             {
-                temp->product[i][j] = temp->matrix1[i][k] * temp->matrix2[k][j];
+                temp->product[i][j] += temp->matrix1[i][k] * temp->matrix2[k][j];
             }
         }
     }
