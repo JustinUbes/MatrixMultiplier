@@ -21,13 +21,15 @@ typedef struct
     void *data;
 } task;
 
-// the work queue
 task worktodo;
 
 task workqueue[QUEUE_SIZE];
 int front = -1;
 int back = -1;
 int size = 0;
+
+pthread_mutex_t lock;
+sem_t sem;
 
 // the worker bee
 pthread_t bee;
@@ -76,7 +78,11 @@ task dequeue()
 // the worker thread in the thread pool
 void *worker(void *param)
 {
-    // execute the task
+    sem_wait(&sem);
+    pthread_mutex_lock(&lock);
+    worktodo = dequeue();
+    pthread_mutex_unlock(&lock);
+
     execute(worktodo.function, worktodo.data);
 
     pthread_exit(0);
@@ -95,15 +101,20 @@ void execute(void (*somefunction)(void *p), void *p)
  */
 int pool_submit(void (*somefunction)(void *p), void *p)
 {
+    pthread_mutex_lock(&lock);
     worktodo.function = somefunction;
     worktodo.data = p;
-
+    enqueue(worktodo);
+    sem_post(&sem);
+    pthread_mutex_unlock(&lock);
     return 0;
 }
 
 // initialize the thread pool
 int pool_init(void)
 {
+    pthread_mutex_init(&lock, NULL);
+    sem_init(&sem, 0, 0);
     int create_val;
     create_val = pthread_create(&bee, NULL, worker, NULL); // create_val should have the value "0" if the thread is created successfully
     if (create_val != 0)
@@ -121,4 +132,6 @@ int pool_init(void)
 void pool_shutdown(void)
 {
     pthread_join(bee, NULL);
+    pthread_mutex_destroy(&lock);
+    sem_destroy(&sem);
 }
