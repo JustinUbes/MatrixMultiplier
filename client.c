@@ -77,18 +77,29 @@ int main(void)
     }
 
     //dynamically allocate the array depending on the number of rows and columns for Matrix A
+    int x, rows, columns, **mat1, **mat2, **prod;
+    //dynamically allocate the array depending on the number of partial products
+
+    // some code to read matrix 1
+    
+    
+
     work->row1 = rows;
     work->col1 = columns;
     mat1 = malloc(rows*sizeof(int*));
-    for(i = 0; i<rows; i++)
+    for(x = 0; x<rows; x++)
     {
-        mat1[i] = malloc(columns*sizeof(int));
+        mat1[x] = malloc(columns*sizeof(int));
     }
     work->matrix1 = mat1;
+
 
     
     // open file B
     bFile = fopen("B.txt", "r");
+
+    // some code to read matrix 1
+
 
     // finds the value of rows and columns for Matrix A
     if (bFile != NULL)
@@ -119,18 +130,18 @@ int main(void)
     work->row2 = rows;
     work->col2 = columns;
     mat2 = malloc(rows*sizeof(int*));
-    for(i = 0; i<rows; i++)
+    for(x = 0; x<rows; x++)
     {
-        mat2[i] = malloc(columns*sizeof(int));
+        mat2[x] = malloc(columns*sizeof(int));
     }
     work->matrix2 = mat2;
 
     work->row3 = work->row1;
     work->col3 = work->col2;
     prod = malloc(rows*sizeof(int*));
-    for(i = 0; i<rows; i++)
+    for(x = 0; x<rows; x++)
     {
-        prod[i] = malloc(columns*sizeof(int));
+        prod[x] = malloc(columns*sizeof(int));
     }
     work->product = prod;
 
@@ -141,15 +152,20 @@ int main(void)
     pool_init();
 
     // submit the work to the queue
-    for(i=0;i<Total_no_of_partial_product;i++)
+    for(x=0;x<Total_no_of_partial_product;x++)
     {
-    	pool_submit(&compute_partial_product,&work[i]);
+    	pool_submit(&compute_partial_product,&work[x]);
     
     }
     // may be helpful 
     //sleep(3);
 
     pool_shutdown();
+
+
+    free(mat1);
+    free(mat2);
+    free(prod);
 
     return 0;
 }
