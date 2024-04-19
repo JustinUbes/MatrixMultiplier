@@ -6,8 +6,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "threadpool.h"
-#define Total_no_of_partial_product 5 // for make to work I have defined this, you should comupte this value from the dimension of the input matrices
+// #define Total_no_of_partial_product 5 // for make to work I have defined this, you should comupte this value from the dimension of the input matrices
 
+static int Total_no_of_partial_product = 5;
 static int i = 0;
 static int j = 0;
 
@@ -67,6 +68,34 @@ datum find_rows_and_columns(const char *filename)
     }
 }
 
+int **populate_matrix(int rows, int columns, char *filename)
+{
+    int n = 0;
+    // allocate mem for general matrix
+    int **mat = (int **)malloc(rows * sizeof(int));
+    for (int x = 0; x < rows; x++)
+    {
+        mat[x] = malloc(columns * sizeof(int));
+    }
+
+    // populate matrix
+    FILE *f = fopen(filename, "r");
+    for (int i = 0; i < rows; i++)
+    {
+        for (int j = 0; j < columns; j++)
+        {
+            if (fscanf(f, "%d", &mat[i][j]) != 1)
+            {
+                printf("Error with fscanf\n");
+                fclose(f);
+                return -1;
+            }
+        }
+    }
+    fclose(f);
+    return mat;
+}
+
 void compute_partial_product(void *param)
 {
     struct data *temp;
@@ -83,7 +112,6 @@ void compute_partial_product(void *param)
 int main(int argc, char *argv[])
 {
 
-    // read the files with input  martices an create the data
     //  create some work to do
     struct data *work;
     int i, x, rows, columns, **mat1, **mat2, **prod, symbol;
@@ -99,36 +127,24 @@ int main(int argc, char *argv[])
     afilename = argv[1];
     bfilename = argv[2];
 
-    // open file A
-
-    // finds the value of rows and columns for Matrix A
     // meta = metadata, data about data, just a quick way to say rows and columns for matrix a or b
     ameta = find_rows_and_columns(afilename);
     bmeta = find_rows_and_columns(bfilename);
-    // dynamically allocate the array depending on the number of rows and columns for Matrix A
-    // dynamically allocate the array depending on the number of partial products
 
-    // some code to read matrix 1
+    Total_no_of_partial_product = ameta.rows * bmeta.columns; // Im about 90% sure this is how this works
 
-    work->row1 = ameta.rows;
-    work->col1 = ameta.columns;
-    mat1 = malloc(ameta.rows * sizeof(int *));
-    for (x = 0; x < ameta.rows; x++)
-    {
-        mat1[x] = malloc(ameta.columns * sizeof(int));
-    }
-    work->matrix1 = mat1;
+    // I commented this stuff out because I am still confused about why were doing it
+    //  work->row1 = ameta.rows;
+    //  work->col1 = ameta.columns;
+    //  work->matrix1 = mat1;
 
-    // dynamically allocate the array depending on the number of rows and columns for Matrix B
-    work->row2 = bmeta.rows;
-    work->col2 = bmeta.columns;
-    mat2 = malloc(bmeta.rows * sizeof(int *));
-    for (x = 0; x < bmeta.rows; x++)
-    {
-        mat2[x] = malloc(bmeta.columns * sizeof(int));
-    }
-    work->matrix2 = mat2;
+    // work->row2 = bmeta.rows;
+    // work->col2 = bmeta.columns;
+    // work->matrix2 = mat2;
+    mat1 = populate_matrix(ameta.rows, ameta.columns, afilename); // we definitely get here because it prints fscanf error then seg fault
+    mat2 = populate_matrix(bmeta.rows, bmeta.columns, bfilename);
 
+    // still confused what this is, somewhere below this line we are getting a seg fault
     work->row3 = work->row1;
     work->col3 = work->col2;
     prod = malloc(rows * sizeof(int *));
@@ -146,6 +162,17 @@ int main(int argc, char *argv[])
     {
         pool_submit(&compute_partial_product, &work[x]);
     }
+
+    // for(i=0;i<row1Dimension;i++)
+    // {
+    //     for (j=0;j<colm2Dimension;j++)
+    //     {
+    //         work[count].row_index = i;
+    //         work[count].column_index =j;
+    //         pool_submit(&compute_partial_product,&work[count]);
+    //         count++;
+    //     }
+    // }
     // may be helpful
     // sleep(3);
 
