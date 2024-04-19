@@ -70,7 +70,6 @@ datum find_rows_and_columns(const char *filename)
 
 int **populate_matrix(int rows, int columns, char *filename)
 {
-    int n = 0;
     // allocate mem for general matrix
     int **mat = (int **)malloc(rows * sizeof(int));
     for (int x = 0; x < rows; x++)
