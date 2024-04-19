@@ -33,7 +33,7 @@ struct data
 
 datum find_rows_and_columns(const char *filename)
 {
-    int symbol, rows, columns;
+    int symbol, rows = 0, columns = 0;
     if (filename != NULL)
     {
         FILE *f = fopen(filename, "r");
@@ -41,16 +41,20 @@ datum find_rows_and_columns(const char *filename)
         {
             symbol = fgetc(f);
 
-            if (rows == 0 && (symbol == " " || feof(f)))
+            if (rows == 0 && symbol != "\n" && symbol != EOF)
+            {
                 columns++;
+            }
             if (symbol == '\n' || feof(f))
+            {
                 rows++;
+            }
         } while (symbol != EOF);
 
         if (ferror(f))
             printf("ERROR: Could not read the file correctly.\n");
         else
-            printf("\nMatrix A\nNumber of rows: %d\nNumber of columns: %d\n", rows, columns);
+            printf("\nThis matrix has...\nNumber of rows: %d\nNumber of columns: %d\n", rows, columns);
         fclose(f);
         datum returnStruct;
         returnStruct.rows = rows;
