@@ -83,7 +83,7 @@ int **populate_matrix(int rows, int columns, char *filename)
     {
         for (int j = 0; j < columns; j++)
         {
-            if (fscanf(f, "%d", &mat[i][j]) != 1)
+            if (fscanf(f, "%d ", &mat[i][j]) == 0)
             {
                 printf("Error with fscanf\n");
                 fclose(f);
@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
 {
 
     //  create some work to do
-    struct data *work;
+    struct data *work = malloc(sizeof(struct data)); // Changed to allocate memory
     int i, x, rows, columns, **mat1, **mat2, **prod, symbol;
     char *afilename, *bfilename;
     datum ameta, bmeta;
