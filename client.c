@@ -18,6 +18,12 @@ typedef struct matrixData
     int columns;
 } datum;
 
+// struct data
+// {
+//     int row_index;
+//     int col_index;
+// };
+
 struct data
 {
     // information needed for one thread to process
@@ -79,11 +85,11 @@ int **populate_matrix(int rows, int columns, char *filename)
 
     // populate matrix
     FILE *f = fopen(filename, "r");
-    for (int i = 0; i < rows; i++)
+    for (int a = 0; a < rows; a++)
     {
-        for (int j = 0; j < columns; j++)
+        for (int b = 0; b < columns; b++)
         {
-            if (fscanf(f, "%d ", &mat[i][j]) == 0)
+            if (fscanf(f, "%d ", &mat[a][b]) == 0)
             {
                 printf("Error with fscanf\n");
                 fclose(f);
@@ -112,8 +118,8 @@ int main(int argc, char *argv[])
 {
 
     //  create some work to do
-    struct data *work = malloc(sizeof(struct data)); // Changed to allocate memory
-    int i, x, rows, columns, **mat1, **mat2, **prod, symbol;
+    // Changed to allocate memory
+    int **mat1, **mat2, **prod, symbol;
     char *afilename, *bfilename;
     datum ameta, bmeta;
 
@@ -131,6 +137,7 @@ int main(int argc, char *argv[])
     bmeta = find_rows_and_columns(bfilename);
 
     Total_no_of_partial_product = ameta.rows * bmeta.columns; // Im about 90% sure this is how this works
+    struct data *work = malloc(sizeof(struct data) * Total_no_of_partial_product);
 
     // I commented this stuff out because I am still confused about why were doing it
     //  work->row1 = ameta.rows;
@@ -146,12 +153,12 @@ int main(int argc, char *argv[])
     work->matrix1 = mat1;
     work->matrix2 = mat2;
 
-    work->row3 = work->row1; // seg fault happens here because row1 and col2 are nothing
-    work->col3 = work->col2;
-    prod = malloc(rows * sizeof(int *));
-    for (x = 0; x < rows; x++)
+    work->row3 = ameta.rows; // seg fault happens here because row1 and col2 are nothing
+    work->col3 = bmeta.columns;
+    prod = malloc(ameta.rows * sizeof(int *));
+    for (int x = 0; x < ameta.rows; x++)
     {
-        prod[x] = malloc(columns * sizeof(int));
+        prod[x] = malloc(bmeta.columns * sizeof(int));
     }
     work->product = prod;
 
@@ -159,21 +166,16 @@ int main(int argc, char *argv[])
     pool_init();
 
     // submit the work to the queue
-    for (x = 0; x < Total_no_of_partial_product; x++)
+    for (i; i < ameta.rows; i++)
     {
-        pool_submit(&compute_partial_product, &work[x]);
+        for (j; j < bmeta.columns; j++)
+        {
+            // work[count].row_index = i;
+            // work[count].column_index = j;
+            pool_submit(&compute_partial_product, &work);
+            // count++;
+        }
     }
-
-    // for(i=0;i<row1Dimension;i++)
-    // {
-    //     for (j=0;j<colm2Dimension;j++)
-    //     {
-    //         work[count].row_index = i;
-    //         work[count].column_index =j;
-    //         pool_submit(&compute_partial_product,&work[count]);
-    //         count++;
-    //     }
-    // }
     // may be helpful
     // sleep(3);
 
