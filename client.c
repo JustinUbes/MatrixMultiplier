@@ -140,11 +140,13 @@ int main(int argc, char *argv[])
     // work->row2 = bmeta.rows;
     // work->col2 = bmeta.columns;
     // work->matrix2 = mat2;
-    mat1 = populate_matrix(ameta.rows, ameta.columns, afilename); // we definitely get here because it prints fscanf error then seg fault
+    mat1 = populate_matrix(ameta.rows, ameta.columns, afilename);
     mat2 = populate_matrix(bmeta.rows, bmeta.columns, bfilename);
 
-    // still confused what this is, somewhere below this line we are getting a seg fault
-    work->row3 = work->row1;
+    work->matrix1 = mat1;
+    work->matrix2 = mat2;
+
+    work->row3 = work->row1; // seg fault happens here because row1 and col2 are nothing
     work->col3 = work->col2;
     prod = malloc(rows * sizeof(int *));
     for (x = 0; x < rows; x++)
