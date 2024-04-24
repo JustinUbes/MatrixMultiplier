@@ -94,7 +94,7 @@ int **populate_matrix(int rows, int columns, char *filename)
     fclose(f);
     return mat;
 }
-
+// logic here definitely good
 void compute_partial_product(void *param)
 {
     struct data *temp;
@@ -155,6 +155,8 @@ int main(int argc, char *argv[])
         {4, 5, 6},
         {7, 8, 9},
         {3, 5, 7}};
+
+    Total_no_of_partial_product = 9;
     struct data *work = (struct data *)malloc(sizeof(struct data));
 
     for (int a = 0; a < 3; a++)
@@ -191,9 +193,9 @@ int main(int argc, char *argv[])
     pool_init();
     for (int e = 0; e < work->row1; e++)
     {
+        work->row_index = e;
         for (int f = 0; f < work->col2; f++)
         {
-            work->row_index = e;
             work->col_index = f;
             pool_submit(&compute_partial_product, work);
         }

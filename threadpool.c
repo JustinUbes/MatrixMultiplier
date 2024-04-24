@@ -32,7 +32,7 @@ pthread_mutex_t lock;
 sem_t sem;
 
 // the worker bee
-pthread_t bee;
+pthread_t bee[NUMBER_OF_THREADS] = {NULL};
 
 // insert a task into the queue
 // returns 0 if successful or 1 otherwise,
@@ -88,8 +88,8 @@ void *worker(void *param)
         pthread_mutex_unlock(&lock);
         execute(worktodo.function, worktodo.data);
         printf("I am a thread and I just did something\n");
-        pthread_exit(0);
     } while (TRUE);
+    // pthread_exit(0);
 }
 
 /**
@@ -122,7 +122,7 @@ int pool_init(void)
     int create_val;
     for (int i = 0; i < NUMBER_OF_THREADS; i++)
     {
-        create_val = pthread_create(&bee, NULL, worker, NULL); // create_val should have the value "0" if the thread is created successfully
+        create_val = pthread_create(&bee[i], NULL, worker, NULL); // create_val should have the value "0" if the thread is created successfully
         if (create_val != 0)
         {
             printf("\nERROR: Failed to create thread\n");
@@ -135,7 +135,10 @@ int pool_init(void)
 // shutdown the thread pool
 void pool_shutdown(void)
 {
-    pthread_join(bee, NULL);
+    for (int i = 0; i < NUMBER_OF_THREADS; ++i)
+    {
+        pthread_join(bee, NULL);
+    }
     pthread_mutex_destroy(&lock);
     sem_destroy(&sem);
 }
