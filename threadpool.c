@@ -116,15 +116,18 @@ int pool_init(void)
     pthread_mutex_init(&lock, NULL);
     sem_init(&sem, 0, 0);
     int create_val;
-    create_val = pthread_create(&bee, NULL, worker, NULL); // create_val should have the value "0" if the thread is created successfully
-    if (create_val != 0)
+    for (int i = 0; i < NUMBER_OF_THREADS; i++)
     {
-        printf("\nERROR: Failed to create thread\n");
-        return 1;
-    }
-    else
-    {
-        return create_val;
+        create_val = pthread_create(&bee, NULL, worker, NULL); // create_val should have the value "0" if the thread is created successfully
+        if (create_val != 0)
+        {
+            printf("\nERROR: Failed to create thread\n");
+            return 1;
+        }
+        else
+        {
+            return create_val;
+        }
     }
 }
 
