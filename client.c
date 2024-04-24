@@ -18,12 +18,6 @@ typedef struct matrixData
     int columns;
 } datum;
 
-// struct data
-// {
-//     int row_index;
-//     int col_index;
-// };
-
 struct data
 {
     // information needed for one thread to process
@@ -31,11 +25,11 @@ struct data
     int row2;
     int col1;
     int col2;
-    int row3;
-    int col3;
-    int **matrix1;
-    int **matrix2;
-    int **product;
+    int row_index;
+    int col_index;
+    int mat1[3][4];
+    int mat2[4][3];
+    int product[3][3];
 };
 
 datum find_rows_and_columns(const char *filename)
@@ -89,7 +83,7 @@ int **populate_matrix(int rows, int columns, char *filename)
     {
         for (int b = 0; b < columns; b++)
         {
-            if (fscanf(f, "%d ", &mat[a][b]) == 0)
+            if (fscanf(f, "%d ", &mat[a][b]) > 1)
             {
                 printf("Error with fscanf\n");
                 fclose(f);
@@ -107,18 +101,19 @@ void compute_partial_product(void *param)
     temp = (struct data *)param;
     // define this
 
-    temp->product[i][j] = 0;
+    int jawn = 0; // I just set the product matrix = 0, dont need to do it here anymore
     for (int k = 0; k < temp->row2; k++)
     {
-        temp->product[i][j] += temp->matrix1[i][k] * temp->matrix2[k][j];
+        jawn += temp->mat1[temp->row_index][k] * temp->mat2[k][temp->col_index];
     }
+    temp->product[temp->row_index][temp->col_index] = jawn;
+    printf("%d\n", temp->product[temp->row_index][temp->col_index]);
 }
 
 int main(int argc, char *argv[])
 {
 
     //  create some work to do
-    // Changed to allocate memory
     int **mat1, **mat2, **prod, symbol;
     char *afilename, *bfilename;
     datum ameta, bmeta;
@@ -136,54 +131,103 @@ int main(int argc, char *argv[])
     ameta = find_rows_and_columns(afilename);
     bmeta = find_rows_and_columns(bfilename);
 
-    Total_no_of_partial_product = ameta.rows * bmeta.columns; // Im about 90% sure this is how this works
-    struct data *work = malloc(sizeof(struct data) * Total_no_of_partial_product);
-
-    // I commented this stuff out because I am still confused about why were doing it
-    //  work->row1 = ameta.rows;
-    //  work->col1 = ameta.columns;
-    //  work->matrix1 = mat1;
+    // Total_no_of_partial_product = ameta.rows * bmeta.columns; // Im about 90% sure this is how this works
+    // struct data *work = malloc(sizeof(struct data));
+    // work->row1 = ameta.rows;
+    // work->col1 = ameta.columns;
 
     // work->row2 = bmeta.rows;
     // work->col2 = bmeta.columns;
+
+    // mat1 = populate_matrix(ameta.rows, ameta.columns, afilename);
+    // mat2 = populate_matrix(bmeta.rows, bmeta.columns, bfilename);
+
+    // work->matrix1 = mat1;
     // work->matrix2 = mat2;
-    mat1 = populate_matrix(ameta.rows, ameta.columns, afilename);
-    mat2 = populate_matrix(bmeta.rows, bmeta.columns, bfilename);
 
-    work->matrix1 = mat1;
-    work->matrix2 = mat2;
+    int matrix1[3][4] = {
+        {1, 4, 20, 2},
+        {3, 6, 10, 1},
+        {5, 10, 15, 13}};
 
-    work->row3 = ameta.rows; // seg fault happens here because row1 and col2 are nothing
-    work->col3 = bmeta.columns;
-    prod = malloc(ameta.rows * sizeof(int *));
-    for (int x = 0; x < ameta.rows; x++)
+    int matrix2[4][3] = {
+        {1, 2, 3},
+        {4, 5, 6},
+        {7, 8, 9},
+        {3, 5, 7}};
+    struct data *work = (struct data *)malloc(sizeof(struct data));
+
+    for (int a = 0; a < 3; a++)
     {
-        prod[x] = malloc(bmeta.columns * sizeof(int));
-    }
-    work->product = prod;
-
-    // initialize the thread pool
-    pool_init();
-
-    // submit the work to the queue
-    for (i; i < ameta.rows; i++)
-    {
-        for (j; j < bmeta.columns; j++)
+        for (int b = 0; b < 4; b++)
         {
-            // work[count].row_index = i;
-            // work[count].column_index = j;
-            pool_submit(&compute_partial_product, &work);
-            // count++;
+            work->mat1[a][b] = matrix1[a][b];
         }
     }
-    // may be helpful
-    // sleep(3);
+
+    for (int c = 0; c < 3; c++)
+    {
+        for (int d = 0; d < 4; d++)
+        {
+            work->mat2[c][d] = matrix1[c][d];
+        }
+    }
+    // multiplying matrices yields matrix a row by matrix b col matrix
+    int matrix3[3][3] = {
+        {0, 0, 0},
+        {0, 0, 0},
+        {0, 0, 0}};
+    for (int g = 0; g < 3; g++)
+    {
+        for (int h = 0; h < 3; h++)
+        {
+            work->product[g][h] = matrix3[g][h];
+        }
+    }
+    work->row1 = 3;
+    work->col1 = 4;
+    work->row2 = 4;
+    work->col2 = 3;
+    pool_init();
+    for (int e = 0; e < work->row1; e++)
+    {
+        for (int f = 0; f < work->col2; f++)
+        {
+            work->row_index = e;
+            work->col_index = f;
+            pool_submit(&compute_partial_product, work);
+        }
+    }
+
+    // initialize the thread pool
+
+    // // submit the work to the queue
+    // for (i; i < ameta.rows; i++)
+    // {
+    //     for (j; j < bmeta.columns; j++)
+    //     {
+    //         // work[count].row_index = i;
+    //         // work[count].column_index = j;
+    //         pool_submit(&compute_partial_product, &work);
+    //         // count++;
+    //     }
+    // }
+    // // may be helpful
+    // // sleep(3);
 
     pool_shutdown();
+    for (int w = 0; w < 3; w++)
+    {
+        for (int v = 0; v < 3; v++)
+        {
+            printf("%d ", work->product[w][v]);
+        }
+        printf("\n");
+    }
 
-    free(mat1);
-    free(mat2);
-    free(prod);
+    // free(mat1);
+    // free(mat2);
+    // free(prod);
 
     return 0;
 }

@@ -52,10 +52,12 @@ int enqueue(task t)
             ++size;
             ++back;
         }
+        return 0;
     }
     else
     {
         printf("Queue is full.\n");
+        return 1;
     }
 }
 
@@ -78,14 +80,16 @@ task dequeue()
 // the worker thread in the thread pool
 void *worker(void *param)
 {
-    sem_wait(&sem);
-    pthread_mutex_lock(&lock);
-    worktodo = dequeue();
-    pthread_mutex_unlock(&lock);
-
-    execute(worktodo.function, worktodo.data);
-
-    pthread_exit(0);
+    do
+    {
+        sem_wait(&sem);
+        pthread_mutex_lock(&lock);
+        worktodo = dequeue();
+        pthread_mutex_unlock(&lock);
+        execute(worktodo.function, worktodo.data);
+        printf("I am a thread and I just did something\n");
+        pthread_exit(0);
+    } while (TRUE);
 }
 
 /**
@@ -124,11 +128,8 @@ int pool_init(void)
             printf("\nERROR: Failed to create thread\n");
             return 1;
         }
-        else
-        {
-            return create_val;
-        }
     }
+    return create_val;
 }
 
 // shutdown the thread pool
