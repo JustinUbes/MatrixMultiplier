@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
 
     //  create some work to do
     struct data *work = malloc(sizeof(struct data)); // Changed to allocate memory
-    int i, x, rows, columns, **mat1, **mat2, **prod, symbol;
+    int x, **mat1, **mat2;
     char *afilename, *bfilename;
     datum ameta, bmeta;
 
@@ -132,28 +132,11 @@ int main(int argc, char *argv[])
 
     Total_no_of_partial_product = ameta.rows * bmeta.columns; // Im about 90% sure this is how this works
 
-    // I commented this stuff out because I am still confused about why were doing it
-    //  work->row1 = ameta.rows;
-    //  work->col1 = ameta.columns;
-    //  work->matrix1 = mat1;
-
-    // work->row2 = bmeta.rows;
-    // work->col2 = bmeta.columns;
-    // work->matrix2 = mat2;
     mat1 = populate_matrix(ameta.rows, ameta.columns, afilename);
     mat2 = populate_matrix(bmeta.rows, bmeta.columns, bfilename);
 
     work->matrix1 = mat1;
     work->matrix2 = mat2;
-
-    work->row3 = work->row1; // seg fault happens here because row1 and col2 are nothing
-    work->col3 = work->col2;
-    prod = malloc(rows * sizeof(int *));
-    for (x = 0; x < rows; x++)
-    {
-        prod[x] = malloc(columns * sizeof(int));
-    }
-    work->product = prod;
 
     // initialize the thread pool
     pool_init();
@@ -181,7 +164,6 @@ int main(int argc, char *argv[])
 
     free(mat1);
     free(mat2);
-    free(prod);
 
     return 0;
 }
