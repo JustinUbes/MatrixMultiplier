@@ -112,6 +112,14 @@ void compute_partial_product(void *param)
     {
         temp->product[i][j] += temp->matrix1[i][k] * temp->matrix2[k][j];
     }
+
+    int l = 0;
+    for (int m = 0; m < temp->row1; m++)
+    {
+        printf("%d\t", temp->product[l][m]);
+    }
+    printf("\n");
+    l++;
 }
 
 int main(int argc, char *argv[])
