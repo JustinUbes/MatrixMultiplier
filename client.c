@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
     struct data *work = malloc(sizeof(struct data)); // Changed to allocate memory
     int x, **mat1, **mat2;
     // Changed to allocate memory
-    int **mat1, **mat2, **prod, symbol;
+    int **mat1, **mat2;
     char *afilename, *bfilename;
     datum ameta, bmeta;
 
@@ -146,15 +146,6 @@ int main(int argc, char *argv[])
 
     work->matrix1 = mat1;
     work->matrix2 = mat2;
-
-    work->row3 = ameta.rows; // seg fault happens here because row1 and col2 are nothing
-    work->col3 = bmeta.columns;
-    prod = malloc(ameta.rows * sizeof(int *));
-    for (int x = 0; x < ameta.rows; x++)
-    {
-        prod[x] = malloc(bmeta.columns * sizeof(int));
-    }
-    work->product = prod;
 
     // initialize the thread pool
     pool_init();
