@@ -10,6 +10,10 @@ Source files:
 
 Makefile
 
-To run the make file, enter "make"
-
-To run the example program, enter "./example"
+- To run the program, change to the directory which you have this file in. 
+- Type "make"
+- Assuming this directory is in your path, type "example yourmatrix1.txt yourmatrix2.txt"
+    - If not in path run (export PATH=/your/directory:$PATH)
+- If the matrices you provided are able to be multiplied, you will see...
+    - How many rows and columns they contain 
+    - what each thread adds to an index of the product matrix.
