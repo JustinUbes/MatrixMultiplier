@@ -127,7 +127,11 @@ int main(int argc, char *argv[])
     // meta = metadata, data about data, just a quick way to say rows and columns for matrix a or b
     ameta = find_rows_and_columns(afilename);
     bmeta = find_rows_and_columns(bfilename);
-
+    if (ameta.columns != bmeta.rows)
+    {
+        printf("Error: The number of columns in matrix A must equal the number of rows in matrix B to multply.\n");
+        // return 1; not adding because this will just end code and we are not reading from files
+    }
     // Total_no_of_partial_product = ameta.rows * bmeta.columns; // Im about 90% sure this is how this works
     // struct data *work = malloc(sizeof(struct data));
     // work->row1 = ameta.rows;
