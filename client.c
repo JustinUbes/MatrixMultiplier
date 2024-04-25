@@ -9,8 +9,6 @@
 // #define Total_no_of_partial_product 5 // for make to work I have defined this, you should comupte this value from the dimension of the input matrices
 
 static int Total_no_of_partial_product = 5;
-static int i = 0;
-static int j = 0;
 
 typedef struct matrixData
 {
