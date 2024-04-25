@@ -64,26 +64,27 @@ int enqueue(task t)
 // remove a task from the queue
 task dequeue()
 {
+    task a;
     if (size == 0)
     {
         printf("Queue is empty.\n");
     }
     else
     {
-        worktodo = workqueue[front];
+        a = workqueue[front];
         --size;
         front = (front + 1) % QUEUE_SIZE;
     }
-    return worktodo;
+    return a;
 }
 
 // the worker thread in the thread pool
 void *worker(void *param)
 {
-
     while (TRUE)
     {
-        // sem_wait(&sem);
+
+        sem_wait(&sem);
         pthread_mutex_lock(&lock);
         worktodo = dequeue();
         pthread_mutex_unlock(&lock);
