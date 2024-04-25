@@ -68,32 +68,32 @@ datum find_rows_and_columns(const char *filename)
     }
 }
 
-int **populate_matrix(int rows, int columns, char *filename)
-{
-    // allocate mem for general matrix
-    int **mat = (int **)malloc(rows * sizeof(int));
-    for (int x = 0; x < rows; x++)
-    {
-        mat[x] = malloc(columns * sizeof(int));
-    }
+// int **populate_matrix(int rows, int columns, char *filename)
+// {
+//     // allocate mem for general matrix
+//     int **mat = (int **)malloc(rows * sizeof(int));
+//     for (int x = 0; x < rows; x++)
+//     {
+//         mat[x] = malloc(columns * sizeof(int));
+//     }
 
-    // populate matrix
-    FILE *f = fopen(filename, "r");
-    for (int a = 0; a < rows; a++)
-    {
-        for (int b = 0; b < columns; b++)
-        {
-            if (fscanf(f, "%d ", &mat[a][b]) > 1)
-            {
-                printf("Error with fscanf\n");
-                fclose(f);
-                return -1;
-            }
-        }
-    }
-    fclose(f);
-    return mat;
-}
+//     // populate matrix
+//     FILE *f = fopen(filename, "r");
+//     for (int a = 0; a < rows; a++)
+//     {
+//         for (int b = 0; b < columns; b++)
+//         {
+//             if (fscanf(f, "%d ", &mat[a][b]) > 1)
+//             {
+//                 printf("Error with fscanf\n");
+//                 fclose(f);
+//                 return -1;
+//             }
+//         }
+//     }
+//     fclose(f);
+//     return mat;
+// }
 // logic here definitely good
 void compute_partial_product(void *param)
 {
@@ -107,12 +107,11 @@ void compute_partial_product(void *param)
         jawn += temp->mat1[temp->row_index][k] * temp->mat2[k][temp->col_index];
     }
     temp->product[temp->row_index][temp->col_index] = jawn;
-    printf("%d\n", temp->product[temp->row_index][temp->col_index]);
+    printf("I put %d at product matrix index [%d][%d]\n", temp->product[temp->row_index][temp->col_index], temp->row_index, temp->col_index);
 }
 
 int main(int argc, char *argv[])
 {
-
     //  create some work to do
     int **mat1, **mat2, **prod, symbol;
     char *afilename, *bfilename;
@@ -175,15 +174,11 @@ int main(int argc, char *argv[])
         }
     }
     // multiplying matrices yields matrix a row by matrix b col matrix
-    int matrix3[3][3] = {
-        {0, 0, 0},
-        {0, 0, 0},
-        {0, 0, 0}};
     for (int g = 0; g < 3; g++)
     {
         for (int h = 0; h < 3; h++)
         {
-            work->product[g][h] = matrix3[g][h];
+            work->product[g][h] = 0;
         }
     }
     work->row1 = 3;
@@ -191,32 +186,22 @@ int main(int argc, char *argv[])
     work->row2 = 4;
     work->col2 = 3;
     pool_init();
+
     for (int e = 0; e < work->row1; e++)
     {
-        work->row_index = e;
+
         for (int f = 0; f < work->col2; f++)
         {
-            work->col_index = f;
-            pool_submit(&compute_partial_product, work);
+            // The reason we arent hitting every index is because we need to pass a copy of work everytime
+            struct data *copy = malloc(sizeof(struct data));
+            memcpy(copy, work, sizeof(struct data));
+            copy->row_index = e;
+            copy->col_index = f;
+            pool_submit(&compute_partial_product, copy);
         }
     }
-
-    // initialize the thread pool
-
-    // // submit the work to the queue
-    // for (i; i < ameta.rows; i++)
-    // {
-    //     for (j; j < bmeta.columns; j++)
-    //     {
-    //         // work[count].row_index = i;
-    //         // work[count].column_index = j;
-    //         pool_submit(&compute_partial_product, &work);
-    //         // count++;
-    //     }
-    // }
     // // may be helpful
-    // // sleep(3);
-
+    sleep(3);
     pool_shutdown();
     for (int w = 0; w < 3; w++)
     {
@@ -226,10 +211,5 @@ int main(int argc, char *argv[])
         }
         printf("\n");
     }
-
-    // free(mat1);
-    // free(mat2);
-    // free(prod);
-
     return 0;
 }

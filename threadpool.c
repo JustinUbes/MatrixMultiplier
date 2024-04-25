@@ -1,7 +1,6 @@
 /**
  * Implementation of thread pool.
  */
-// Adding for justin branch
 #include <pthread.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -40,6 +39,7 @@ int enqueue(task t)
 {
     if (size < QUEUE_SIZE)
     {
+
         if (back == QUEUE_SIZE - 1)
         {
             workqueue[0] = t;
@@ -80,16 +80,15 @@ task dequeue()
 // the worker thread in the thread pool
 void *worker(void *param)
 {
-    do
+
+    while (TRUE)
     {
-        sem_wait(&sem);
+        // sem_wait(&sem);
         pthread_mutex_lock(&lock);
         worktodo = dequeue();
         pthread_mutex_unlock(&lock);
         execute(worktodo.function, worktodo.data);
-        printf("I am a thread and I just did something\n");
-    } while (TRUE);
-    // pthread_exit(0);
+    }
 }
 
 /**
@@ -108,8 +107,10 @@ int pool_submit(void (*somefunction)(void *p), void *p)
     pthread_mutex_lock(&lock);
     worktodo.function = somefunction;
     worktodo.data = p;
-    enqueue(worktodo);
-    sem_post(&sem);
+    if (enqueue(worktodo) == 0)
+    {
+        sem_post(&sem);
+    }
     pthread_mutex_unlock(&lock);
     return 0;
 }
@@ -137,7 +138,7 @@ void pool_shutdown(void)
 {
     for (int i = 0; i < NUMBER_OF_THREADS; ++i)
     {
-        pthread_join(bee, NULL);
+        pthread_join(bee[i], NULL);
     }
     pthread_mutex_destroy(&lock);
     sem_destroy(&sem);
